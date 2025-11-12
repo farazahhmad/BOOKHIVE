@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Library Search</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- ✅ NAVBAR -->
+<div class="navbar">
+  <div class="nav-left">BOOKHIVE</div>
+
+  <!-- Hamburger Icon -->
+  <div class="hamburger" onclick="toggleMenu()">
+    ☰
+  </div>
+
+  <!-- Navigation Links -->
+  <div class="nav-right" id="navMenu">
+    <a href="index.html">Search</a>
+    <a href="student-login.html">Student Login</a>
+    <a href="student-dashboard.html">My Account</a>
+    <a href="librarian-login.html">Librarian Login</a>
+    <a href="librarian-dashboard.html">Dashboard</a>
+  </div>
+</div>
+
+<!-- ✅ MAIN CONTENT -->
+<div class="container">
+    <div class="hero-box">
+  <h1>Welcome to BOOKHIVE : Official Library Portal of NIT JSR </h1>
+  <p>Search for books, check availability, and borrow instantly.</p>
+</div>
+
+
+  <h2>Search Books</h2>
+
+  <div class="search-row">
+    <input id="searchBox" placeholder="Search by title or author..." onkeyup="liveSearch()">
+  </div>
+
+  <ul id="results"></ul>
+  <h3 style="margin-top:20px;">Browse by Category</h3>
+
+<div class="category-grid">
+  <div class="cat-card">📘 Computer Science</div>
+  <div class="cat-card">📗 Literature</div>
+  <div class="cat-card">📙 Business</div>
+  <div class="cat-card">📕 Engineering</div>
+  <div class="cat-card">📚 History</div>
+  <div class="cat-card">🔬 Science</div>
+</div>
+
+</div>
+
+
+<!-- ✅ JAVASCRIPT -->
+<script>
+/* ---------------------------
+   NAVBAR TOGGLE (HAMBURGER)
+----------------------------*/
+function toggleMenu() {
+  const menu = document.getElementById("navMenu");
+  menu.classList.toggle("show-menu");
+}
+
+/* ---------------------------
+   STUDENT CHECK (HYBRID MODE)
+----------------------------*/
+function ensureStudent() {
+  return JSON.parse(localStorage.getItem('student') || 'null');
+}
+
+/* ---------------------------
+   LIVE SEARCH + BORROW
+----------------------------*/
+let typingTimer;
+
+async function liveSearch() {
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(doSearch, 150);
+}
+
+async function doSearch() {
+  const q = document.getElementById("searchBox").value.trim();
+  const list = document.getElementById("results");
+
+  if (q === "") {
+    list.innerHTML = "";
+    return;
+  }
+
+  const res = await fetch(`http://localhost:5000/search?q=${encodeURIComponent(q)}`);
+  const data = await res.json();
+
+  const student = ensureStudent();
+  list.innerHTML = "";
+
+  data.forEach(book => {
+    const canBorrow = book.available === true;
+
+    list.innerHTML += `
+      <li>
+        <strong>${book.title}</strong><br>
+        ${book.author}<br>
+        ${book.id}<br>
+
+        <span class="${book.available ? "available" : "unavailable"}">
+          ${book.available ? "Available" : "Issued"}
+        </span>
+
+        ${canBorrow ? `
+          <br>
+          <button style="width:auto;margin-top:8px"
+            onclick="borrowBook(${book.id})">
+            Borrow
+          </button>
+        ` : ``}
+      </li>
+    `;
+  });
+}
+
+/* ---------------------------
+   BORROW BOOK
+----------------------------*/
+async function borrowBook(bookId) {
+  const student = ensureStudent();
+  if (!student) {
+    alert("Please log in as a student to borrow books.");
+    window.location.href = "student-login.html";
+    return;
+  }
+
+  const res = await fetch("http://localhost:5000/borrow", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ studentId: student.id, bookId })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    alert(`Borrowed! Due on: ${new Date(data.dueAt).toLocaleString()}`);
+    doSearch(); // refresh list
+  } else {
+    alert(data.message || "Error");
+  }
+}
+</script>
+
+
+<footer class="footer">
+  <p>© 2025 College Library Portal — Powered by NIT JSR</p>
+</footer>
+
+
+</body>
+</html>

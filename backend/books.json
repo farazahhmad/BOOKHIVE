@@ -1,0 +1,352 @@
+[
+  {
+    "id": 1,
+    "title": "Introduction to Algorithms",
+    "author": "Thomas H. Cormen",
+    "category": "Computer Science",
+    "available": true
+  },
+  {
+    "id": 2,
+    "title": "Operating System Concepts",
+    "author": "Abraham Silberschatz",
+    "category": "Computer Science",
+    "available": false
+  },
+  {
+    "id": 3,
+    "title": "Computer Networks",
+    "author": "Andrew S. Tanenbaum",
+    "category": "Computer Science",
+    "available": true
+  },
+  {
+    "id": 4,
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "category": "Software Engineering",
+    "available": true
+  },
+  {
+    "id": 5,
+    "title": "Database System Concepts",
+    "author": "Silberschatz & Korth",
+    "category": "Database",
+    "available": false
+  },
+  {
+    "id": 6,
+    "title": "Artificial Intelligence: A Modern Approach",
+    "author": "Stuart Russell",
+    "category": "AI",
+    "available": true
+  },
+  {
+    "id": 7,
+    "title": "Deep Learning",
+    "author": "Ian Goodfellow",
+    "category": "AI",
+    "available": true
+  },
+  {
+    "id": 8,
+    "title": "The Pragmatic Programmer",
+    "author": "Andy Hunt",
+    "category": "Software Engineering",
+    "available": false
+  },
+  {
+    "id": 9,
+    "title": "Design Patterns",
+    "author": "Erich Gamma",
+    "category": "Software Engineering",
+    "available": true
+  },
+  {
+    "id": 10,
+    "title": "You Don't Know JS",
+    "author": "Kyle Simpson",
+    "category": "Programming",
+    "available": true
+  },
+  {
+    "id": 11,
+    "title": "JavaScript: The Good Parts",
+    "author": "Douglas Crockford",
+    "category": "Programming",
+    "available": true
+  },
+  {
+    "id": 12,
+    "title": "Python Crash Course",
+    "author": "Eric Matthes",
+    "category": "Programming",
+    "available": false
+  },
+  {
+    "id": 13,
+    "title": "Learning Python",
+    "author": "Mark Lutz",
+    "category": "Programming",
+    "available": true
+  },
+  {
+    "id": 14,
+    "title": "Eloquent JavaScript",
+    "author": "Marijn Haverbeke",
+    "category": "Programming",
+    "available": true
+  },
+  {
+    "id": 15,
+    "title": "Java: The Complete Reference",
+    "author": "Herbert Schildt",
+    "category": "Programming",
+    "available": false
+  },
+  {
+    "id": 16,
+    "title": "C Programming Language",
+    "author": "Kernighan & Ritchie",
+    "category": "Programming",
+    "available": true
+  },
+  {
+    "id": 17,
+    "title": "Head First Java",
+    "author": "Kathy Sierra",
+    "category": "Programming",
+    "available": true
+  },
+  {
+    "id": 18,
+    "title": "Head First Design Patterns",
+    "author": "Eric Freeman",
+    "category": "Software Engineering",
+    "available": true
+  },
+  {
+    "id": 19,
+    "title": "Data Structures and Algorithms in Java",
+    "author": "Robert Lafore",
+    "category": "Computer Science",
+    "available": false
+  },
+  {
+    "id": 20,
+    "title": "The Mythical Man-Month",
+    "author": "Fred Brooks",
+    "category": "Software Engineering",
+    "available": true
+  },
+  {
+    "id": 21,
+    "title": "The C++ Programming Language",
+    "author": "Bjarne Stroustrup",
+    "category": "Programming",
+    "available": false
+  },
+  {
+    "id": 22,
+    "title": "Effective C++",
+    "author": "Scott Meyers",
+    "category": "Programming",
+    "available": true
+  },
+  {
+    "id": 23,
+    "title": "Code Complete",
+    "author": "Steve McConnell",
+    "category": "Software Engineering",
+    "available": true
+  },
+  {
+    "id": 24,
+    "title": "Structure and Interpretation of Computer Programs",
+    "author": "Harold Abelson",
+    "category": "Computer Science",
+    "available": true
+  },
+  {
+    "id": 25,
+    "title": "Introduction to Machine Learning",
+    "author": "Alpaydin",
+    "category": "AI",
+    "available": false
+  },
+  {
+    "id": 26,
+    "title": "Machine Learning Yearning",
+    "author": "Andrew Ng",
+    "category": "AI",
+    "available": true
+  },
+  {
+    "id": 27,
+    "title": "Pattern Recognition and Machine Learning",
+    "author": "Christopher Bishop",
+    "category": "AI",
+    "available": true
+  },
+  {
+    "id": 28,
+    "title": "Reinforcement Learning",
+    "author": "Sutton & Barto",
+    "category": "AI",
+    "available": true
+  },
+  {
+    "id": 29,
+    "title": "Compilers: Principles, Techniques, and Tools",
+    "author": "Aho & Ullman",
+    "category": "Computer Science",
+    "available": false
+  },
+  {
+    "id": 30,
+    "title": "Introduction to Automata Theory",
+    "author": "Hopcroft",
+    "category": "Computer Science",
+    "available": true
+  },
+  {
+    "id": 31,
+    "title": "Linear Algebra Done Right",
+    "author": "Sheldon Axler",
+    "category": "Mathematics",
+    "available": true
+  },
+  {
+    "id": 32,
+    "title": "Discrete Mathematics and Its Applications",
+    "author": "Kenneth Rosen",
+    "category": "Mathematics",
+    "available": false
+  },
+  {
+    "id": 33,
+    "title": "A Brief History of Time",
+    "author": "Stephen Hawking",
+    "category": "Science",
+    "available": true
+  },
+  {
+    "id": 34,
+    "title": "The Selfish Gene",
+    "author": "Richard Dawkins",
+    "category": "Science",
+    "available": true
+  },
+  {
+    "id": 35,
+    "title": "Sapiens: A Brief History of Humankind",
+    "author": "Yuval Noah Harari",
+    "category": "History",
+    "available": false
+  },
+  {
+    "id": 36,
+    "title": "The Art of War",
+    "author": "Sun Tzu",
+    "category": "History",
+    "available": true
+  },
+  {
+    "id": 37,
+    "title": "The Power of Habit",
+    "author": "Charles Duhigg",
+    "category": "Self-Help",
+    "available": true
+  },
+  {
+    "id": 38,
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "category": "Self-Help",
+    "available": true
+  },
+  {
+    "id": 39,
+    "title": "Thinking, Fast and Slow",
+    "author": "Daniel Kahneman",
+    "category": "Psychology",
+    "available": false
+  },
+  {
+    "id": 40,
+    "title": "Man's Search for Meaning",
+    "author": "Viktor Frankl",
+    "category": "Psychology",
+    "available": true
+  },
+  {
+    "id": 41,
+    "title": "The Subtle Art of Not Giving a F*ck",
+    "author": "Mark Manson",
+    "category": "Self-Help",
+    "available": true
+  },
+  {
+    "id": 42,
+    "title": "Zero to One",
+    "author": "Peter Thiel",
+    "category": "Business",
+    "available": true
+  },
+  {
+    "id": 43,
+    "title": "Rich Dad Poor Dad",
+    "author": "Robert Kiyosaki",
+    "category": "Business",
+    "available": false
+  },
+  {
+    "id": 44,
+    "title": "The Lean Startup",
+    "author": "Eric Ries",
+    "category": "Business",
+    "available": true
+  },
+  {
+    "id": 45,
+    "title": "Hooked: How to Build Habit-Forming Products",
+    "author": "Nir Eyal",
+    "category": "Business",
+    "available": true
+  },
+  {
+    "id": 47,
+    "title": "1984",
+    "author": "George Orwell",
+    "category": "Literature",
+    "available": true
+  },
+  {
+    "id": 48,
+    "title": "To Kill a Mockingbird",
+    "author": "Harper Lee",
+    "category": "Literature",
+    "available": false
+  },
+  {
+    "id": 49,
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "category": "Literature",
+    "available": true
+  },
+  {
+    "id": 50,
+    "title": "Pride and Prejudice",
+    "author": "Jane Austen",
+    "category": "Literature",
+    "available": true
+  },
+  {
+    "id": 51,
+    "title": "BS Greval",
+    "author": "BS GREVAL",
+    "category": "MATHS",
+    "available": true
+  }
+]

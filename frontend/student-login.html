@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="navbar">
+  <div class="nav-left">BOOKHIVE</div>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <div class="nav-right" id="navMenu">
+    <a href="index.html">Search</a>
+    <a href="student-login.html">Student Login</a>
+   <a href="#" onclick="openDashboard()">Dashboard</a>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Student Login</h2>
+
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <p class="error" id="error">Invalid email or password!</p>
+</div>
+
+<script>
+function toggleMenu() {
+  document.getElementById("navMenu").classList.toggle("show-menu");
+}
+
+function login() {
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  const error = document.getElementById("error");
+
+  const demoEmail = "student@example.com";
+  const demoPass = "12345";
+
+  if (email === demoEmail && pass === demoPass) {
+    
+    // ✅ ALWAYS set student data
+    localStorage.setItem("student", JSON.stringify({
+      id: "s1",
+      name: "John Doe",
+      email: "student@example.com"
+    }));
+
+    // ✅ Redirect
+    window.location.href = "student-dashboard.html";
+
+  } else {
+    error.style.display = "block";
+  }
+}
+</script>
+
+<footer class="footer">
+  <p>© 2025 College Library Portal — Powered by NIT JSR</p>
+</footer>
+
+
+</body>
+</html>

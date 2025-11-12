@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Librarian Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- ✅ NAVBAR -->
+<div class="navbar">
+  <div class="nav-left">BOOKHIVE</div>
+
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+
+  <div class="nav-right" id="navMenu">
+    <a href="index.html">Search</a>
+    <a href="student-login.html">Student Login</a>
+    <a href="librarian-login.html">Librarian Login</a>
+    <a href="#" onclick="openDashboard()">Dashboard</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Librarian Dashboard</h2>
+
+  <!-- ADD BOOK -->
+  <h3>Add a New Book</h3>
+  <input id="newTitle" placeholder="Book Title">
+  <input id="newAuthor" placeholder="Author">
+  <input id="newCategory" placeholder="Category">
+  <button onclick="addBook()">Add Book</button>
+
+  <hr style="margin: 20px 0;">
+
+  <!-- UPDATE BOOK -->
+  <h3>Update Book Availability</h3>
+  <input id="updateId" placeholder="Book ID">
+  <select id="updateStatus">
+    <option value="true">Available</option>
+    <option value="false">Issued</option>
+  </select>
+  <button onclick="updateBook()">Update</button>
+
+  <hr style="margin: 20px 0;">
+
+  <!-- DELETE BOOK -->
+  <h3>Delete Book</h3>
+  <input id="deleteId" placeholder="Book ID">
+  <button onclick="deleteBook()">Delete</button>
+
+  <p class="error" id="msg"></p>
+</div>
+
+<!-- ✅ FIXED SINGLE SCRIPT -->
+<script>
+/* -----------------------
+   NAVBAR TOGGLE
+------------------------ */
+function toggleMenu() {
+  const menu = document.getElementById("navMenu");
+  menu.classList.toggle("show-menu");
+}
+
+/* -----------------------
+   PROTECT DASHBOARD
+------------------------ */
+function ensureLibrarian() {
+  const lib = JSON.parse(localStorage.getItem("librarian") || "null");
+  if (!lib) {
+    alert("Please log in as Librarian first.");
+    window.location.href = "librarian-login.html";
+  }
+  return lib;
+}
+ensureLibrarian();
+
+/* -----------------------
+   NAVBAR DASHBOARD BUTTON
+------------------------ */
+function openDashboard() {
+  const lib = JSON.parse(localStorage.getItem("librarian") || "null");
+  if (!lib) {
+    alert("Please log in as Librarian first.");
+    window.location.href = "librarian-login.html";
+  } else {
+    window.location.href = "librarian-dashboard.html";
+  }
+}
+
+/* -----------------------
+   ADD BOOK (REAL BACKEND)
+------------------------ */
+async function addBook() {
+  const title = document.getElementById("newTitle").value.trim();
+  const author = document.getElementById("newAuthor").value.trim();
+  const category = document.getElementById("newCategory").value.trim();
+  const msg = document.getElementById("msg");
+
+  if (!title || !author || !category) {
+    msg.style.display = "block";
+    msg.style.color = "red";
+    msg.textContent = "All fields required!";
+    return;
+  }
+
+  const res = await fetch("http://localhost:5000/addBook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, author, category })
+  });
+
+  const data = await res.json();
+  msg.style.display = "block";
+  msg.style.color = "green";
+  msg.textContent = "✅ " + data.message;
+}
+
+/* -----------------------
+   UPDATE AVAILABILITY
+------------------------ */
+async function updateBook() {
+  const id = parseInt(document.getElementById("updateId").value);
+  const available = document.getElementById("updateStatus").value === "true";
+  const msg = document.getElementById("msg");
+
+  const res = await fetch("http://localhost:5000/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, available })
+  });
+
+  const data = await res.json();
+  msg.style.display = "block";
+  msg.style.color = "green";
+  msg.textContent = "✅ " + data.message;
+}
+
+/* -----------------------
+   DELETE BOOK
+------------------------ */
+async function deleteBook() {
+  const id = parseInt(document.getElementById("deleteId").value);
+  const msg = document.getElementById("msg");
+
+  const res = await fetch("http://localhost:5000/deleteBook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id })
+  });
+
+  const data = await res.json();
+  msg.style.display = "block";
+  msg.style.color = res.ok ? "green" : "red";
+  msg.textContent = (res.ok ? "✅ " : "❌ ") + data.message;
+}
+
+/* -----------------------
+   LOGOUT
+------------------------ */
+function logout() {
+  localStorage.removeItem("librarian");
+  window.location.href = "librarian-login.html";
+}
+</script>
+<footer class="footer">
+  <p>© 2025 College Library Portal — Powered by NIT JSR</p>
+</footer>
+
+</body>
+</html>

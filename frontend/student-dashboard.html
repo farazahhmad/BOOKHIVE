@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="nav-left">BOOKHIVE</div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="nav-right" id="navMenu">
+      <a href="index.html">Search</a>
+      <a href="student-login.html">Student Login</a>
+      <a href="librarian-login.html">Librarian Login</a>
+      <a href="#" onclick="openDashboard()">Dashboard</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Student Dashboard</h2>
+
+    <div id="profile"></div>
+    <h3 style="margin-top:20px;">My Borrowed Books</h3>
+    <ul id="borrowedList"></ul>
+  </div>
+
+<script>
+function toggleMenu() {
+  const menu = document.getElementById("navMenu");
+  menu.classList.toggle("show-menu");
+}
+
+function ensureStudent() {
+  const s = JSON.parse(localStorage.getItem('student') || 'null');
+if (!s) {
+  alert('Please log in.');
+  window.location.href = 'student-login.html';
+}
+
+  return s;
+}
+
+function fmt(dateIso) {
+  const d = new Date(dateIso);
+  return d.toLocaleString();
+}
+
+async function loadDashboard() {
+  const student = ensureStudent();
+  if (!student) return;
+
+  document.getElementById('profile').innerHTML = `
+    <p><strong>Name:</strong> ${student.name}</p>
+    <p><strong>Email:</strong> ${student.email}</p>
+    <button onclick="logout()" style="width:auto;margin-top:8px;">Logout</button>
+  `;
+
+  const res = await fetch(`http://localhost:5000/student/${student.id}`);
+  const data = await res.json();
+
+  const list = document.getElementById('borrowedList');
+  list.innerHTML = '';
+
+  (data.borrowed || []).slice().reverse().forEach(item => {
+    const isActive = item.status === 'borrowed';
+    list.innerHTML += `
+      <li>
+        <strong>${item.title}</strong><br>
+        ${item.author}<br>
+        Status: <span class="${isActive ? 'available' : 'unavailable'}">${item.status}</span><br>
+        Borrowed: ${fmt(item.borrowedAt)}<br>
+        ${isActive ? `Due: ${fmt(item.dueAt)}<br>
+        <button style="width:auto;margin-top:8px" onclick="returnBook(${item.bookId})">Return Book</button>` 
+        : `Returned: ${fmt(item.returnedAt)}`}
+      </li>
+    `;
+  });
+}
+
+async function returnBook(bookId) {
+  const student = ensureStudent();
+  if (!student) return;
+
+  const res = await fetch('http://localhost:5000/return', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ studentId: student.id, bookId })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    alert(data.message);
+    loadDashboard();
+  } else {
+    alert(data.message || 'Error');
+  }
+}
+
+function logout() {
+  localStorage.removeItem('student');
+  window.location.href = 'student-login.html';
+}
+
+loadDashboard();
+</script>
+
+<footer class="footer">
+  <p>© 2025 College Library Portal — Powered by NIT JSR</p>
+</footer>
+
+</body>
+</html>

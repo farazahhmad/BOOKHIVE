@@ -1,0 +1,54 @@
+[
+  {
+    "id": "s1",
+    "name": "John Doe",
+    "email": "student@example.com",
+    "borrowed": [
+      {
+        "bookId": 24,
+        "title": "Structure and Interpretation of Computer Programs",
+        "author": "Harold Abelson",
+        "borrowedAt": "2025-11-10T18:46:40.109Z",
+        "dueAt": "2025-11-24T18:46:40.109Z",
+        "status": "returned",
+        "returnedAt": "2025-11-10T18:46:45.557Z"
+      },
+      {
+        "bookId": 11,
+        "title": "JavaScript: The Good Parts",
+        "author": "Douglas Crockford",
+        "borrowedAt": "2025-11-10T18:51:22.430Z",
+        "dueAt": "2025-11-24T18:51:22.430Z",
+        "status": "returned",
+        "returnedAt": "2025-11-10T18:51:32.295Z"
+      },
+      {
+        "bookId": 30,
+        "title": "Introduction to Automata Theory",
+        "author": "Hopcroft",
+        "borrowedAt": "2025-11-10T18:53:38.824Z",
+        "dueAt": "2025-11-24T18:53:38.824Z",
+        "status": "returned",
+        "returnedAt": "2025-11-10T19:16:11.427Z"
+      },
+      {
+        "bookId": 1,
+        "title": "Introduction to Algorithms",
+        "author": "Thomas H. Cormen",
+        "borrowedAt": "2025-11-10T19:15:58.824Z",
+        "dueAt": "2025-11-24T19:15:58.824Z",
+        "status": "returned",
+        "returnedAt": "2025-11-10T19:16:13.944Z"
+      },
+      {
+        "bookId": 11,
+        "title": "JavaScript: The Good Parts",
+        "author": "Douglas Crockford",
+        "borrowedAt": "2025-11-11T17:05:39.150Z",
+        "dueAt": "2025-11-25T17:05:39.150Z",
+        "status": "returned",
+        "returnedAt": "2025-11-11T17:05:48.631Z"
+      }
+    ]
+  }
+]

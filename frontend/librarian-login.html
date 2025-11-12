@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Librarian Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- ✅ NAVBAR -->
+<div class="navbar">
+  <div class="nav-left">BOOKHIVE</div>
+
+  <!-- Hamburger Icon -->
+  <div class="hamburger" onclick="toggleMenu()">
+    ☰
+  </div>
+
+  <!-- Navbar Links -->
+  <div class="nav-right" id="navMenu">
+    <a href="index.html">Search</a>
+    <a href="student-login.html">Student Login</a>
+    <a href="librarian-login.html">Librarian Login</a>
+    <a href="#" onclick="openDashboard()">Dashboard</a>
+  </div>
+</div>
+
+<!-- ✅ LOGIN FORM -->
+<div class="container">
+  <h2>Librarian Login</h2>
+
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+
+  <button onclick="login()">Login</button>
+
+  <p class="error" id="error">Invalid credentials!</p>
+</div>
+
+<script>
+/* ✅ HAMBURGER MENU */
+function toggleMenu() {
+  document.getElementById("navMenu").classList.toggle("show-menu");
+}
+
+/* ✅ OPEN DASHBOARD FROM NAVBAR */
+function openDashboard() {
+  const lib = JSON.parse(localStorage.getItem("librarian") || "null");
+  if (!lib) {
+    alert("Please log in as Librarian first.");
+    window.location.href = "librarian-login.html";
+  } else {
+    window.location.href = "librarian-dashboard.html";
+  }
+}
+
+/* ✅ FINAL FIXED LOGIN FUNCTION (ONLY ONE!) */
+function login() {
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  const error = document.getElementById("error");
+
+  // ✅ Demo librarian credentials
+  const adminEmail = "admin@library.com";
+  const adminPass = "admin123";
+
+  if (email === adminEmail && pass === adminPass) {
+
+    // ✅ Save librarian session
+    localStorage.setItem("librarian", JSON.stringify({
+      id: "lib1",
+      name: "Main Librarian",
+      email: adminEmail
+    }));
+
+    // ✅ Redirect to Dashboard
+    window.location.href = "librarian-dashboard.html";
+
+  } else {
+    error.style.display = "block";
+  }
+}
+</script>
+
+<footer class="footer">
+  <p>© 2025 College Library Portal — Powered by NIT JSR</p>
+</footer>
+
+
+</body>
+</html>
