@@ -1,112 +1,214 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Student Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
 
-  <div class="navbar">
-    <div class="nav-left">BOOKHIVE</div>
-    <div class="hamburger" onclick="toggleMenu()">☰</div>
-    <div class="nav-right" id="navMenu">
-      <a href="index.html">Search</a>
-      <a href="student-login.html">Student Login</a>
-      <a href="librarian-login.html">Librarian Login</a>
-      <a href="#" onclick="openDashboard()">Dashboard</a>
+    <div class="navbar">
+      <div class="nav-left">BOOKHIVE</div>
+      <div class="hamburger" onclick="toggleMenu()">☰</div>
+      <div class="nav-right" id="navMenu">
+        <a href="index.html">Search</a>
+        <a href="student-login.html">Student Login</a>
+        <a href="librarian-login.html">Librarian Login</a>
+        <a href="about.html">About</a>
+
+        <a href="#" onclick="openDashboard()">Dashboard</a>
+      </div>
     </div>
-  </div>
 
-  <div class="container">
-    <h2>Student Dashboard</h2>
+    <div class="container">
+      <h2>Student Dashboard</h2>
 
-    <div id="profile"></div>
-    <h3 style="margin-top:20px;">My Borrowed Books</h3>
-    <ul id="borrowedList"></ul>
-  </div>
+      <div id="profile"></div>
+      <h3 style="margin-top:20px;">My Borrowed Books</h3>
+      <ul id="borrowedList"></ul>
+    </div>
 
 <script>
+/* ---------- NAV / AUTH ---------- */
 function toggleMenu() {
   const menu = document.getElementById("navMenu");
   menu.classList.toggle("show-menu");
 }
 
 function ensureStudent() {
-  const s = JSON.parse(localStorage.getItem('student') || 'null');
-if (!s) {
-  alert('Please log in.');
-  window.location.href = 'student-login.html';
-}
-
+  const s = JSON.parse(localStorage.getItem("student") || "null");
+  if (!s) {
+    alert("Please log in.");
+    window.location.href = "student-login.html";
+  }
   return s;
 }
 
-function fmt(dateIso) {
-  const d = new Date(dateIso);
-  return d.toLocaleString();
+/* ---------- UTIL ---------- */
+function fmt(time) {
+  try { return new Date(time).toLocaleString(); }
+  catch(e){ return time; }
 }
 
+function showMessage(text, color='') {
+  const list = document.getElementById("borrowedList");
+  list.innerHTML = `<p style="color:${color || '#333'}">${text}</p>`;
+}
+
+/* ---------- LOAD DASHBOARD (robust) ---------- */
 async function loadDashboard() {
   const student = ensureStudent();
   if (!student) return;
 
+  // show profile
   document.getElementById('profile').innerHTML = `
     <p><strong>Name:</strong> ${student.name}</p>
     <p><strong>Email:</strong> ${student.email}</p>
     <button onclick="logout()" style="width:auto;margin-top:8px;">Logout</button>
   `;
 
-  const res = await fetch(`http://localhost:5000/student/${student.id}`);
-  const data = await res.json();
+  const listEl = document.getElementById('borrowedList');
+  listEl.innerHTML = '<p>Loading borrowed books…</p>';
 
-  const list = document.getElementById('borrowedList');
-  list.innerHTML = '';
+  // 1) fetch student borrows from possible endpoints and handle different shapes
+  let borrowedResp = null;
+  let borrowedData = null;
+  const endpointsToTry = [
+    `/student/${student.id}`,
+    `/my-borrows/${student.id}`
+  ];
 
-  (data.borrowed || []).slice().reverse().forEach(item => {
-    const isActive = item.status === 'borrowed';
-    list.innerHTML += `
-      <li>
-        <strong>${item.title}</strong><br>
-        ${item.author}<br>
-        Status: <span class="${isActive ? 'available' : 'unavailable'}">${item.status}</span><br>
-        Borrowed: ${fmt(item.borrowedAt)}<br>
-        ${isActive ? `Due: ${fmt(item.dueAt)}<br>
-        <button style="width:auto;margin-top:8px" onclick="returnBook(${item.bookId})">Return Book</button>` 
-        : `Returned: ${fmt(item.returnedAt)}`}
-      </li>
+  for (const ep of endpointsToTry) {
+    try {
+      console.log('[DEBUG] Fetching', ep);
+      const r = await fetch(`http://localhost:5000${ep}`);
+      if (!r.ok) {
+        console.warn('[DEBUG] Non-OK from', ep, r.status);
+        continue;
+      }
+      borrowedResp = await r.json();
+      console.log('[DEBUG] Response from', ep, borrowedResp);
+      // normalize:
+      if (Array.isArray(borrowedResp)) {
+        // case: returns array of borrow records directly
+        borrowedData = borrowedResp;
+      } else if (borrowedResp && Array.isArray(borrowedResp.borrowed)) {
+        // case: { borrowed: [...] }
+        borrowedData = borrowedResp.borrowed;
+      } else if (borrowedResp && (borrowedResp.records || borrowedResp.data)) {
+        borrowedData = borrowedResp.records || borrowedResp.data;
+      } else {
+        // couldn't parse — store raw
+        borrowedData = borrowedResp;
+      }
+      break;
+    } catch (err) {
+      console.error('[DEBUG] Error fetching', ep, err);
+    }
+  }
+
+  if (!borrowedData || (Array.isArray(borrowedData) && borrowedData.length === 0)) {
+    showMessage('You have no borrowed books.', '#666');
+    console.log('[DEBUG] borrowedData empty:', borrowedData);
+    return;
+  }
+
+  // 2) fetch all books to map ids -> book details
+  let allBooks = [];
+  try {
+    const r2 = await fetch('http://localhost:5000/search?q=');
+    allBooks = await r2.json();
+    console.log('[DEBUG] All books length', allBooks.length);
+  } catch (err) {
+    console.error('[DEBUG] Error fetching /search', err);
+    showMessage('Unable to load book details. Check backend.', 'red');
+    return;
+  }
+
+  // 3) render items (support different borrowed item shapes)
+  listEl.innerHTML = ''; // clear
+  // borrowedData might be an object or array of objects
+  const arr = Array.isArray(borrowedData) ? borrowedData : [borrowedData];
+
+  for (const entry of arr) {
+    // Accept many possible shapes:
+    // { bookId, borrowedAt, dueAt, status, title, author } OR
+    // { id: <bookId> } or other
+    let bookId = entry.bookId ?? entry.id ?? entry.book?.id ?? null;
+    let title = entry.title ?? null;
+    let author = entry.author ?? null;
+    let borrowedAt = entry.borrowedAt ?? entry.borrowed_at ?? entry.from ?? null;
+    let dueAt = entry.dueAt ?? entry.due_at ?? entry.due ?? null;
+    let status = entry.status ?? (entry.returnedAt ? 'returned' : 'borrowed');
+
+    // If title/author missing, lookup in allBooks
+    if ((!title || !author) && bookId != null) {
+      const book = allBooks.find(b => b.id === bookId || b.id === Number(bookId));
+      if (book) {
+        title = title || book.title;
+        author = author || book.author;
+      }
+    }
+
+    // Fallback: if still no bookId but entry contains title, show that
+    if (!bookId && !title) {
+      console.warn('[DEBUG] Skipping entry, no id or title', entry);
+      continue;
+    }
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${title || 'Untitled'}</strong><br>
+      ${author || 'Unknown author'}<br>
+      Status: <span class="${status === 'borrowed' ? 'available' : 'unavailable'}">${status}</span><br>
+      Borrowed: ${borrowedAt ? fmt(borrowedAt) : 'Unknown'}<br>
+      ${dueAt ? `Due: ${fmt(dueAt)}<br>` : ''}
+      ${status === 'borrowed' && bookId ? `<button onclick="returnBook(${bookId})" style="margin-top:8px;width:auto;">Return</button>` : ''}
     `;
-  });
+    listEl.appendChild(li);
+  }
+
+  console.log('[DEBUG] Rendered borrowed items.');
 }
 
+/* ---------- RETURN ---------- */
 async function returnBook(bookId) {
   const student = ensureStudent();
   if (!student) return;
 
-  const res = await fetch('http://localhost:5000/return', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ studentId: student.id, bookId })
-  });
-  const data = await res.json();
-  if (res.ok) {
-    alert(data.message);
-    loadDashboard();
-  } else {
-    alert(data.message || 'Error');
+  try {
+    const r = await fetch('http://localhost:5000/return', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId: student.id, bookId })
+    });
+    const data = await r.json();
+    console.log('[DEBUG] return response', r.status, data);
+    if (r.ok) {
+      alert('Book returned.');
+      loadDashboard();
+    } else {
+      alert(data?.message || 'Return failed');
+    }
+  } catch (err) {
+    console.error('[DEBUG] returnBook error', err);
+    alert('Network error while returning.');
   }
 }
 
+/* ---------- LOGOUT ---------- */
 function logout() {
   localStorage.removeItem('student');
   window.location.href = 'student-login.html';
 }
 
+/* ---------- START ---------- */
 loadDashboard();
 </script>
 
-<footer class="footer">
-  <p>© 2025 College Library Portal — Powered by NIT JSR</p>
-</footer>
 
-</body>
-</html>
+  <footer class="footer">
+    <p>© 2025 College Library Portal — Powered by NIT JSR</p>
+  </footer>
+
+  </body>
+  </html>

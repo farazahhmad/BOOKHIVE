@@ -7,92 +7,122 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Serve frontend files (VERY IMPORTANT)
+// Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Load local JSON files
+// Paths for JSON files
 const booksPath = path.join(__dirname, "books.json");
 const studentsPath = path.join(__dirname, "students.json");
 
-// Helper
-function writeJSON(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+// Load JSON
+let books = JSON.parse(fs.readFileSync(booksPath, "utf8"));
+let students = JSON.parse(fs.readFileSync(studentsPath, "utf8"));
+
+// Helper to save
+function save(file, data) {
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
-// Load Data
-let books = JSON.parse(fs.readFileSync(booksPath));
-let students = JSON.parse(fs.readFileSync(studentsPath));
-
-//////////////////////////////
-//  ROUTES
-//////////////////////////////
-
-// Search
+/* ================================================================
+   SEARCH BOOKS
+================================================================ */
 app.get("/search", (req, res) => {
-  const q = req.query.q?.toLowerCase() || "";
+  const q = (req.query.q || "").toLowerCase();
 
-  const results = books.filter(
-    (b) =>
-      b.title.toLowerCase().includes(q) ||
-      b.author.toLowerCase().includes(q)
+  const result = books.filter(
+    b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)
   );
 
-  res.json(results);
+  res.json(result);
 });
 
-// Borrow
+/* ================================================================
+   BORROW A BOOK — Supports ARRAY students.json
+================================================================ */
 app.post("/borrow", (req, res) => {
   const { studentId, bookId } = req.body;
 
-  const book = books.find((b) => b.id === bookId);
-  if (!book || !book.available) {
-    return res.status(400).json({ message: "Book unavailable" });
-  }
+  const book = books.find(b => b.id === bookId);
+  if (!book) return res.status(404).json({ message: "Book not found" });
+  if (!book.available) return res.status(400).json({ message: "Already issued" });
 
+  // Mark book as issued
   book.available = false;
 
-  const student = students[studentId] || [];
-  student.push({
+  // Find student object in array
+  let student = students.find(s => s.id === studentId);
+
+  // If not found, create new student
+  if (!student) {
+    student = { id: studentId, name: "", email: "", borrowed: [] };
+    students.push(student);
+  }
+
+  student.borrowed.push({
     bookId,
-    borrowedAt: Date.now(),
-    dueAt: Date.now() + 5 * 24 * 60 * 60 * 1000
+    title: book.title,
+    author: book.author,
+    borrowedAt: new Date().toISOString(),
+    dueAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    status: "borrowed"
   });
 
-  students[studentId] = student;
+  save(booksPath, books);
+  save(studentsPath, students);
 
-  writeJSON(booksPath, books);
-  writeJSON(studentsPath, students);
-
-  res.json({ message: "Borrowed", dueAt: Date.now() });
+  res.json({ message: "Borrow success" });
 });
 
-// Return
+/* ================================================================
+   RETURN A BOOK — Supports ARRAY students.json
+================================================================ */
 app.post("/return", (req, res) => {
   const { studentId, bookId } = req.body;
 
-  const book = books.find((b) => b.id === bookId);
+  const book = books.find(b => b.id === bookId);
   if (!book) return res.status(404).json({ message: "Book not found" });
 
+  // Make book available again
   book.available = true;
 
-  students[studentId] = students[studentId]?.filter(
-    (b) => b.bookId !== bookId
-  ) || [];
+  // Find the student
+  const student = students.find(s => s.id === studentId);
+  if (!student) return res.status(404).json({ message: "Student not found" });
 
-  writeJSON(booksPath, books);
-  writeJSON(studentsPath, students);
+  // Find specific borrowed record
+  const entry = student.borrowed.find(b => b.bookId === bookId && b.status === "borrowed");
+  if (entry) {
+    entry.status = "returned";
+    entry.returnedAt = new Date().toISOString();
+  }
+
+  save(booksPath, books);
+  save(studentsPath, students);
 
   res.json({ message: "Returned" });
 });
 
-// Add Book
+/* ================================================================
+   GET BORROWED BOOKS FOR A STUDENT — ARRAY FORMAT SUPPORTED
+================================================================ */
+app.get("/student/:id", (req, res) => {
+  const studentId = req.params.id;
+
+  const student = students.find(s => s.id === studentId);
+
+  if (!student) return res.json([]); // No books
+
+  res.json(student.borrowed || []);
+});
+
+/* ================================================================
+   ADD BOOK
+================================================================ */
 app.post("/addBook", (req, res) => {
   const { title, author, category } = req.body;
 
-  const newId = books.length ? books[books.length - 1].id + 1 : 1;
-
   const newBook = {
-    id: newId,
+    id: books.length + 1,
     title,
     author,
     category,
@@ -100,38 +130,41 @@ app.post("/addBook", (req, res) => {
   };
 
   books.push(newBook);
-  writeJSON(booksPath, books);
+  save(booksPath, books);
 
   res.json({ message: "Book added", book: newBook });
 });
 
-// Delete
-app.post("/deleteBook", (req, res) => {
-  const { id } = req.body;
-  books = books.filter((b) => b.id !== id);
-  writeJSON(booksPath, books);
-  res.json({ message: "Book deleted" });
-});
-
-// Update availability
+/* ================================================================
+   UPDATE BOOK
+================================================================ */
 app.post("/update", (req, res) => {
   const { id, available } = req.body;
 
-  const book = books.find((b) => b.id === id);
+  const book = books.find(b => b.id === id);
   if (!book) return res.status(404).json({ message: "Book not found" });
 
   book.available = available;
-  writeJSON(booksPath, books);
 
-  res.json({ message: "Book updated" });
+  save(booksPath, books);
+
+  res.json({ message: "Updated" });
 });
 
-// Get student data
-app.get("/student/:id", (req, res) => {
-  const id = req.params.id;
-  res.json(students[id] || []);
+/* ================================================================
+   DELETE BOOK
+================================================================ */
+app.post("/deleteBook", (req, res) => {
+  const { id } = req.body;
+
+  books = books.filter(b => b.id !== id);
+
+  save(booksPath, books);
+
+  res.json({ message: "Book deleted" });
 });
 
-// Start server
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log("Server running on port", PORT));
+/* ================================================================
+   START SERVER
+================================================================ */
+app.listen(5000, () => console.log("Server running on http://localhost:5000"));

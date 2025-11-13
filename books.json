@@ -28,13 +28,6 @@
     "available": true
   },
   {
-    "id": 5,
-    "title": "Database System Concepts",
-    "author": "Silberschatz & Korth",
-    "category": "Database",
-    "available": false
-  },
-  {
     "id": 6,
     "title": "Artificial Intelligence: A Modern Approach",
     "author": "Stuart Russell",
@@ -74,7 +67,7 @@
     "title": "JavaScript: The Good Parts",
     "author": "Douglas Crockford",
     "category": "Programming",
-    "available": true
+    "available": false
   },
   {
     "id": 12,
@@ -137,7 +130,7 @@
     "title": "The Mythical Man-Month",
     "author": "Fred Brooks",
     "category": "Software Engineering",
-    "available": true
+    "available": false
   },
   {
     "id": 21,
@@ -340,13 +333,20 @@
     "title": "Pride and Prejudice",
     "author": "Jane Austen",
     "category": "Literature",
-    "available": true
+    "available": false
   },
   {
     "id": 51,
     "title": "BS Greval",
     "author": "BS GREVAL",
     "category": "MATHS",
+    "available": true
+  },
+  {
+    "id": 50,
+    "title": "Concepts of Physics",
+    "author": "HC Verma",
+    "category": "Physics",
     "available": true
   }
 ]
