@@ -48,6 +48,15 @@
         "dueAt": "2025-11-25T17:05:39.150Z",
         "status": "returned",
         "returnedAt": "2025-11-11T17:05:48.631Z"
+      },
+      {
+        "bookId": 30,
+        "title": "Introduction to Automata Theory",
+        "author": "Hopcroft",
+        "borrowedAt": "2025-11-18T12:20:39.071Z",
+        "dueAt": "2025-11-23T12:20:39.071Z",
+        "status": "returned",
+        "returnedAt": "2025-11-18T12:20:55.447Z"
       }
     ]
   }
